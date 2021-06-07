@@ -1,7 +1,8 @@
 from classes.Utilities import random_string
 import numpy
 
-class Packet():
+
+class Packet:
     ''' This module implements the Packet object, which is the data structure responsible for
         transporting message blocks among clients.
     '''
@@ -40,9 +41,8 @@ class Packet():
         self.sender_estimates[self.real_sender.label] = 1.0
         self.probability_mass = numpy.zeros(self.conf["misc"]["num_target_packets"])
 
-        if self.type=="REAL":
+        if self.type == "REAL":
             self.message.reconstruct.add(self.id)
-
 
     @classmethod
     def new(cls, conf, net, dest, payload, sender, type, num, msg_id):
@@ -52,7 +52,6 @@ class Packet():
         rand_route = net.select_random_route()
         rand_route = rand_route + [dest]
         return cls(conf=conf, route=rand_route, payload=payload, sender=sender, dest=dest, type=type, num=num, msg_id=msg_id)
-
 
     @classmethod
     def ack(cls, conf, net, dest, sender, packet_id, msg_id):
@@ -79,7 +78,6 @@ class Packet():
         rand_route = net.select_random_route()
         rand_route = rand_route + [dest]
         return cls(conf=conf, route=rand_route, payload=payload, sender=sender, dest=dest, type="DUMMY_ACK", msg_id="DUMMY_ACK")
-
 
     def output(self):
         ''' Function prints the information about the packet'''

@@ -3,6 +3,7 @@ import json
 
 conf = {}
 
+
 def load(filepath):
     global conf
     print("Settings are being loaded from:%s" % filepath)

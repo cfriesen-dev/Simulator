@@ -1,6 +1,5 @@
 from simulation_modes import test_mode
 import os
-# from experiments import plotting
 from metrics import anonymity_metrics
 import pandas as pd
 import json
@@ -9,7 +8,6 @@ import json
 if __name__ == "__main__":
 
 	# try:
-
 	print("Mix-network Simulator\n")
 	print("Insert the following network parameters to test: ")
 

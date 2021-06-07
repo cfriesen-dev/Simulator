@@ -1,13 +1,6 @@
-import simpy
-import sys
 import os
-import numpy
-from collections import defaultdict
-import logging
 import argparse
-
-from simulation_modes import test_mode, transcript_mode, diff_config_test
-import experiments.Settings
+from simulation_modes import test_mode
 
 
 def main(args):
@@ -62,6 +55,7 @@ def main(args):
             perc_corrupt=conf["mixnodes"]["perc_corrupt"], verbose=conf["debug"]["mixnodes_verbose"])
     else:
         print("Mode is not recognised")
+
 
 if __name__ == "__main__":
 

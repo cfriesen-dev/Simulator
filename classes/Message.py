@@ -3,6 +3,7 @@ import random
 from classes.Packet import Packet
 import math
 
+
 class Message():
     ''' This class defines an object of a Message, which is a message send between
     the sender and recipient. '''
@@ -27,7 +28,6 @@ class Message():
         # Packets
         self.pkts = self.split_into_packets(net, dest)
 
-
     @classmethod
     def random(cls, conf, net, sender, dest):
         ''' This class method creates a random message, with random payload. '''
@@ -37,7 +37,6 @@ class Message():
 
         m = cls(conf=conf, net=net, payload=payload, real_sender=sender, dest=dest)
         return m
-
 
     def split_into_packets(self, net, dest):
         ''' Function splits the payload of the message into the fixed size blocks
@@ -102,7 +101,6 @@ class Message():
             the status of the message completeness is set to True.
         '''
         self.complete_receiving = (len(self.reconstruct) == 0)
-
 
     def output(self):
         ''' Prints all the information about the message ans its packets'''

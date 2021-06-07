@@ -2,18 +2,13 @@ import simpy
 import os
 import datetime
 import numpy as np
-from collections import namedtuple
-
-
 import experiments.Settings
-
-from classes.Net import *
-from classes.Client import *
 from classes.Net import *
 from classes.Utilities import *
 
 
 throughput = 0.0
+
 
 def get_loggers(log_dir, conf):
 
@@ -39,7 +34,6 @@ def setup_env(conf):
     env.entropy = numpy.zeros(int(conf["misc"]["num_target_packets"]))
 
     return env
-
 
 
 def run_p2p(env, conf, net, loggers):
@@ -90,10 +84,8 @@ def run_p2p(env, conf, net, loggers):
     env.run(until=env.stop_sim_event)  # Run until the stop_sim_event is triggered.
     print("> Main part of simulation finished. Starting cooldown phase.")
 
-
     # ------ RUNNING THE COOLDOWN PHASE ----------
     env.run(until=env.now + conf["phases"]["cooldown"])
-
 
     # Log entropy
     loggers[2].info(StructuredMessage(metadata=tuple(env.entropy)))
@@ -116,7 +108,6 @@ def run_p2p(env, conf, net, loggers):
 
     print("Network throughput %f / second: " % throughput)
     print("Average mix throughput %f / second, with std: %f" % (np.mean(mixthroughputs), np.std(mixthroughputs)))
-
 
 
 def run_client_server(env, conf, net, loggers):
@@ -189,7 +180,6 @@ def run_client_server(env, conf, net, loggers):
     print("> Total Simulation Time [in unix time]: " + str(time_finished_unix-time_started_unix) + "---------")
 
     flush_logs(loggers)
-
 
     global throughput
     throughput = float(env.total_messages_received) / float(time_finished-time_started)

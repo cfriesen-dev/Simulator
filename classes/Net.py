@@ -1,10 +1,6 @@
-import math
 import random
-import numpy
 from classes.Node import Node
 from classes.Client import Client
-import experiments.Settings
-import os
 
 
 class Network(object):
@@ -80,7 +76,6 @@ class Network(object):
 
         return tmp_route
 
-
     def forward_packet(self, packet):
         ''' Function responsible for forwarding the packet, i.e.,
             checking what is the next hop of the packet and triggering the
@@ -96,7 +91,6 @@ class Network(object):
         next_node = packet.route[packet.current_node + 1]
         packet.current_node += 1
         self.env.process(next_node.process_packet(packet))
-
 
     def __repr__(self):
         return "topology: " + str(self.topology)

@@ -1,11 +1,11 @@
 import math
 import numpy as np
-from scipy import stats
 
-def getEntropy(data, num_target_packets):
-	columnsNames = ['Entropy'+str(x) for x in range(num_target_packets)]
+
+def get_entropy(data, num_target_packets):
+	column_names = ['Entropy'+str(x) for x in range(num_target_packets)]
 	entropies = []
-	for column in columnsNames:
+	for column in column_names:
 		dist = data.iloc[0][column]
 		# suma = sum([float(x) for x in dist])
 		# print("For column %s the sum is %f" % (column, suma))
@@ -19,8 +19,7 @@ def getEntropy(data, num_target_packets):
 # 	return entropy
 
 
-
-def getUnlinkability(data):
+def get_unlinkability(data):
 	epsilon = []
 	dlts = 0
 	est_senderA = data["PrSenderA"]
@@ -51,10 +50,10 @@ def getUnlinkability(data):
 	return (meanEps, delta)
 
 
-def computeE2ELatency(df):
-	travelTime = []
+def compute_e2e_latency(df):
+	travel_time = []
 	for i, r in df.iterrows():
-	    timeSent = r['PacketTimeSent']
-	    timeDelivered = r['PacketTimeDelivered']
-	    travelTime.append(timeDelivered - timeSent)
-	return np.mean(travelTime)
+		time_sent = r['PacketTimeSent']
+		time_delivered = r['PacketTimeDelivered']
+		travel_time.append(time_delivered - time_sent)
+	return np.mean(travel_time)

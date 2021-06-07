@@ -5,6 +5,7 @@ from classes.Packet import Packet
 from classes.Message import Message
 import random
 
+
 class Node(object):
 
     def __init__(self, env, conf, net=None, label=0, loggers=None, id=None):
@@ -16,7 +17,6 @@ class Node(object):
 
         self.pkts_received = 0
         self.pkts_sent = 0
-
 
         self.avg_delay = 0.0 if self.conf["mixnodes"]["avg_delay"] == 0.0 else float(self.conf["mixnodes"]["avg_delay"])
 
@@ -30,6 +30,7 @@ class Node(object):
 
         self.loggers = loggers if loggers else None
         (self.packet_logger, self.message_logger, self.entropy_logger) = self.loggers
+
         #State
         self.alive = True
 
@@ -49,7 +50,6 @@ class Node(object):
         self.start_logs = False
         self.batch_num = 0
         self.free_to_batch = True
-
 
     def start(self, dest):
         ''' Main client method; It sends packets out.
@@ -81,7 +81,6 @@ class Node(object):
                     self.env.total_messages_sent += 1
             else:
                 break
-
 
     def start_loop_cover_traffc(self):
         ''' Function responsible for managing the independent Poisson stream
@@ -124,7 +123,6 @@ class Node(object):
 
         self.env.process(self.net.forward_packet(packet))
 
-
     def process_batch_round(self):
         ''' Additional function if we want to simulate a batching technique.
         '''
@@ -140,7 +138,6 @@ class Node(object):
         self.free_to_batch = True
         return
         yield
-
 
     def process_packet(self, packet):
         ''' Function performs processing of the given packet and logs information
@@ -172,7 +169,6 @@ class Node(object):
                     self.forward_packet(packet)
                 else:
                     pass
-
 
     def process_received_packet(self, packet):
         ''' 1. Processes the received packets and logs informatiomn about them.
@@ -240,12 +236,10 @@ class Node(object):
 
         self.env.process(self.net.forward_packet(packet))
 
-
     def update_entropy(self, packet):
         for i, pr in enumerate(packet.probability_mass):
             if pr != 0.0:
                 self.env.entropy[i] += -(float(pr) * math.log(float(pr), 2))
-
 
     def add_pkt_in_pool(self, packet):
         ''' Method adds incoming packet in mixnode pool and updates the vector
@@ -271,13 +265,11 @@ class Node(object):
             self.probability_mass = dist_pm.copy()
             self.sender_estimates = dist_se.copy()
 
-
     def set_start_logs(self, time=0.0):
         yield self.env.timeout(time)
         self.start_logs = True
         if self.verbose:
             print("> Logs set on for Client %s." % self.id)
-
 
     def simulate_adding_packets_into_buffer(self, dest):
         #  This function is used in the test mode
@@ -306,7 +298,6 @@ class Node(object):
             i += 1
         self.env.finished = True
 
-
     def terminate(self, delay=0.0):
         ''' Function changes user's alive status to False after a particular delay
             Keyword argument:
@@ -315,7 +306,6 @@ class Node(object):
         yield self.env.timeout(delay)
         self.alive = False
         print("Node %s terminated at time %s ." % (self.id, self.env.now))
-
 
     def add_to_buffer(self, packets):
         for pkt in packets:

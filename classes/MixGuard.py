@@ -1,5 +1,6 @@
 import simpy
-import random
+from classes.Utilities import random_string
+
 
 class MixGuard(object):
     __slots__ = ['env', 'conf', 'net', 'logger', 'layer', 'id', 'resource_queue', 'queue', 'resource_queue', 'max_capacity']
@@ -24,7 +25,6 @@ class MixGuard(object):
 
         self.env.process(self.flush_packets())
 
-
     def set_network(self, topology):
         ''' Function sets a given network topology.
 
@@ -36,7 +36,6 @@ class MixGuard(object):
     def process_packet(self, packet):
         yield self.env.timeout(0)
         self.add_packet_to_queue(packet)
-
 
     def add_packet_to_queue(self, packet):
         ''' Adding packet to the internal queue.
@@ -66,7 +65,6 @@ class MixGuard(object):
             yield req
             yield self.env.timeout(1)
             self.forward_packet(packet)
-
 
     def forward_packet(self, packet):
         self.env.process(self.net.forward_packet(packet))
