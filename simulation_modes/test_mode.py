@@ -64,7 +64,7 @@ def run_p2p(env, conf, net, loggers):
     env.process(recipient.start_loop_cover_traffc())
 
     print("---------" + str(datetime.datetime.now()) + "---------")
-    print("> Running the system for %s ticks to prepare it for measurment." % (conf["phases"]["burnin"]))
+    print("> Running the system for %s ticks to prepare it for measurement." % (conf["phases"]["burnin"]))
 
     # env.process(progress_update(env, 5))
     time_started = env.now
@@ -79,7 +79,7 @@ def run_p2p(env, conf, net, loggers):
         p.mixlogging = True
 
     env.process(SenderT1.simulate_adding_packets_into_buffer(recipient))
-    print("> Started sending traffic for measurments")
+    print("> Started sending traffic for measurements")
 
     env.run(until=env.stop_sim_event)  # Run until the stop_sim_event is triggered.
     print("> Main part of simulation finished. Starting cooldown phase.")
@@ -175,7 +175,7 @@ def run_client_server(env, conf, net, loggers):
     print("> Cooldown phase finished.")
     time_finished = env.now
     time_finished_unix = datetime.datetime.now()
-    # print("Reciever received: ", recipient.num_received_packets)
+    print("Receiver received: ", recipient.num_received_packets)
     print("> Total Simulation Time [in ticks]: " + str(time_finished-time_started) + "---------")
     print("> Total Simulation Time [in unix time]: " + str(time_finished_unix-time_started_unix) + "---------")
 
@@ -200,11 +200,11 @@ def flush_logs(loggers):
 
 
 def run(exp_dir, conf_file=None, conf_dic=None):
-    print("The experiment log directory is: %s" %exp_dir)
+    print("The experiment log directory is: %s" % exp_dir)
 
     # Upload config file
     if conf_file:
-        print("The config file is at:%s" %conf_file)
+        print("The config file is at:%s" % conf_file)
         conf = experiments.Settings.load(conf_file)
     elif conf_dic:
         conf = conf_dic
@@ -213,10 +213,10 @@ def run(exp_dir, conf_file=None, conf_dic=None):
 
     # -------- timing for how long to run the simulation ----------
     limittime = conf["phases"]["burnin"] + conf["phases"]["execution"] # time after which we should terminate the target senders from sending
-    simtime = conf["phases"]["burnin"] +  conf["phases"]["execution"] + conf["phases"]["cooldown"] # time after which the whole simulator stops
+    simtime = conf["phases"]["burnin"] + conf["phases"]["execution"] + conf["phases"]["cooldown"] # time after which the whole simulator stops
 
     # Logging directory
-    log_dir = os.path.join(exp_dir,conf["logging"]["dir"])
+    log_dir = os.path.join(exp_dir, conf["logging"]["dir"])
     # Setup environment
     env = setup_env(conf)
 

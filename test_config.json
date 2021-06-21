@@ -34,10 +34,10 @@
         "min_msg_size": 2,
         "max_msg_size": 2},
     "mixnodes": {
-			"avg_delay": 0.1,
+      "avg_delay": 0.1,
       "batch": false,
       "batch_size" : 1000,
-			"AQM":false},
+      "AQM":false},
     "clients": {
         "number":100,
         "sim_add_buffer": 1.0,

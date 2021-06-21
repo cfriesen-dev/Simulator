@@ -47,7 +47,7 @@ if __name__ == "__main__":
 	print("\n\n")
 	print("-------- Performance metrics --------")
 	print(">> Overall latency: %f seconds (including mixing delay and packet cryptographic processing)" % (latency))
-	print(">> Throuhput of the network: %f [packets / second]" % throughput)
+	print(">> Throughput of the network: %f [packets / second]" % throughput)
 	print("-------------------------------------------------------")
 
 	# except Exception as e:
