@@ -144,7 +144,7 @@ def run_client_server(env, conf, net, loggers):
     env.process(recipient.start_loop_cover_traffc())
 
     print("---------" + str(datetime.datetime.now()) + "---------")
-    print("> Running the system for %s ticks to prepare it for measurment." % (conf["phases"]["burnin"]))
+    print("> Running the system for %s ticks to prepare it for measurement." % (conf["phases"]["burnin"]))
 
     # env.process(progress_update(env, 5))
     time_started = env.now
@@ -159,7 +159,7 @@ def run_client_server(env, conf, net, loggers):
         p.mixlogging = True
 
     env.process(SenderT1.simulate_adding_packets_into_buffer(recipient))
-    print("> Started sending traffic for measurments")
+    print("> Started sending traffic for measurements")
 
     env.run(until=env.stop_sim_event)  # Run until the stop_sim_event is triggered.
     print("> Main part of simulation finished. Starting cooldown phase.")

@@ -199,8 +199,8 @@ class Node(object):
                 self.env.message_ctr -= 1
 
                 # this part is used to stop the simulator at a time when all sent packets got delivered!
-                if self.env.finished == True and self.env.message_ctr <= 0:
-                  print('> The stop simulation condition happend.')
+                if self.env.finished and self.env.message_ctr <= 0:
+                  print('> The stop simulation condition happened.')
                   self.env.stop_sim_event.succeed()
 
         elif packet.type == "DUMMY":
@@ -223,7 +223,7 @@ class Node(object):
         except Exception as e:
             pass
 
-        # If the pool dries out, then we start measurments from scratch
+        # If the pool dries out, then we start measurements from scratch
         if len(self.pool) == 0:
             self.sender_estimates = None
             self.probability_mass = None
