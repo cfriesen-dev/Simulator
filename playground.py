@@ -31,9 +31,9 @@ if __name__ == "__main__":
 	packetLogs = pd.read_csv(packetLogsDir, delimiter=';')
 	entropyLogs = pd.read_csv(entropyLogsDir, delimiter=';')
 
-	unlinkability = anonymity_metrics.getUnlinkability(packetLogs)
-	entropy = anonymity_metrics.getEntropy(entropyLogs, config["misc"]["num_target_packets"])
-	latency = anonymity_metrics.computeE2ELatency(packetLogs)
+	unlinkability = anonymity_metrics.get_unlinkability(packetLogs)
+	entropy = anonymity_metrics.get_entropy(entropyLogs, config["misc"]["num_target_packets"])
+	latency = anonymity_metrics.compute_e2e_latency(packetLogs)
 
 	print("\n\n")
 	print("Simulation finished. Below, you can check your results.")
