@@ -199,7 +199,7 @@ def flush_logs(loggers):
             h.flush()
 
 
-def run(exp_dir, conf_file=None, conf_dic=None):
+def run(exp_dir, conf_file=None, conf_dic=None, traffic_dic=None):
     print("The experiment log directory is: %s" % exp_dir)
 
     # Upload config file
