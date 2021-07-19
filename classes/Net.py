@@ -15,7 +15,7 @@ class Network(object):
         if traffic:
             self.clients = [Client(env, conf, self, loggers=loggers, label=0, id=i, messages=traffic[i]) for i in traffic.keys()]
         else:
-            self.clients = [Client(env, conf, self, loggers = loggers, label=0) for i in range(int(conf["clients"]["number"]))]
+            self.clients = [Client(env, conf, self, loggers=loggers, label=0) for i in range(int(conf["clients"]["number"]))]
 
         if type == "p2p":
             self.peers = [Node(env, conf, self, id="Peer%s" % i, loggers=loggers) for i in range(int(conf["clients"]["number"]))]

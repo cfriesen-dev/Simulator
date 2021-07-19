@@ -53,15 +53,15 @@ def run_p2p(env, conf, net, loggers):
     recipient = peers.pop()
 
     for c in peers:
-        env.process(c.start(random.choice(peers)))
+        env.process(c.start())
         env.process(c.start_loop_cover_traffc())
 
-    env.process(SenderT1.start(dest=random.choice(peers)))
+    env.process(SenderT1.start())
     env.process(SenderT1.start_loop_cover_traffc())
-    env.process(SenderT2.start(dest=random.choice(peers)))
+    env.process(SenderT2.start())
     env.process(SenderT2.start_loop_cover_traffc())
     env.process(recipient.set_start_logs())
-    env.process(recipient.start(dest=random.choice(peers)))
+    env.process(recipient.start())
     env.process(recipient.start_loop_cover_traffc())
 
     print("---------" + str(datetime.datetime.now()) + "---------")
@@ -133,15 +133,15 @@ def run_client_server(env, conf, net, loggers):
 
     for c in clients:
         c.verbose = True
-        env.process(c.start(random.choice(clients)))
+        env.process(c.start())
         env.process(c.start_loop_cover_traffc())
 
-    env.process(sender_t1.start(dest=recipient))
+    env.process(sender_t1.start())
     env.process(sender_t1.start_loop_cover_traffc())
-    env.process(sender_t2.start(dest=random.choice(clients)))
+    env.process(sender_t2.start())
     env.process(sender_t2.start_loop_cover_traffc())
     env.process(recipient.set_start_logs())
-    env.process(recipient.start(dest=random.choice(clients)))
+    env.process(recipient.start())
     env.process(recipient.start_loop_cover_traffc())
 
     print("---------" + str(datetime.datetime.now()) + "---------")

@@ -10,7 +10,7 @@ class Packet:
     __slots__ = ['conf', 'id', 'route', 'payload', 'real_sender', 'dest', 'msg_id', 'message', 'fragments', 'type', 'pool_logs', 'dropped', 'current_node', 'times_transmitted',
                 'ACK_Received', 'time_queued', 'time_sent', 'time_delivered', 'sender_estimates', 'probability_mass']
 
-    def __init__(self, conf, route, payload, sender, dest, type, packet_id = None, msg_id="DUMMY", order=1, num=1, message=None):
+    def __init__(self, conf, route, payload, sender, dest, type, packet_id=None, msg_id="DUMMY", order=1, num=1, message=None):
         self.conf = conf
         self.id = packet_id or random_string(32)
 
