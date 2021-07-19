@@ -1,6 +1,7 @@
 import simpy
 import os
 import datetime
+import random
 import numpy as np
 import experiments.Settings
 from classes.Net import *
@@ -114,15 +115,15 @@ def run_client_server(env, conf, net, loggers):
     clients = net.clients
     print("Number of active clients: ", len(clients))
 
-    SenderT1 = clients.pop()
-    SenderT1.label = 1
-    SenderT1.verbose = True
-    print("Target Sender1: ", SenderT1.id)
+    sender_t1 = clients.pop(random.randint(0, len(clients)))
+    sender_t1.label = 1
+    sender_t1.verbose = True
+    print("Target Sender1: ", sender_t1.id)
 
-    SenderT2 = clients.pop()
-    SenderT2.label = 2
-    SenderT2.verbose = True
-    print("Target Sender2: ", SenderT2.id)
+    sender_t2 = clients.pop(random.randint(0, len(clients)))
+    sender_t2.label = 2
+    sender_t2.verbose = True
+    print("Target Sender2: ", sender_t2.id)
 
     recipient = clients.pop()
     recipient.verbose = True
@@ -135,10 +136,10 @@ def run_client_server(env, conf, net, loggers):
         env.process(c.start(random.choice(clients)))
         env.process(c.start_loop_cover_traffc())
 
-    env.process(SenderT1.start(dest=recipient))
-    env.process(SenderT1.start_loop_cover_traffc())
-    env.process(SenderT2.start(dest=random.choice(clients)))
-    env.process(SenderT2.start_loop_cover_traffc())
+    env.process(sender_t1.start(dest=recipient))
+    env.process(sender_t1.start_loop_cover_traffc())
+    env.process(sender_t2.start(dest=random.choice(clients)))
+    env.process(sender_t2.start_loop_cover_traffc())
     env.process(recipient.set_start_logs())
     env.process(recipient.start(dest=random.choice(clients)))
     env.process(recipient.start_loop_cover_traffc())
@@ -158,7 +159,7 @@ def run_client_server(env, conf, net, loggers):
     for p in net.mixnodes:
         p.mixlogging = True
 
-    env.process(SenderT1.simulate_adding_packets_into_buffer(recipient))
+    env.process(sender_t1.simulate_adding_packets_into_buffer(recipient))
     print("> Started sending traffic for measurements")
 
     env.run(until=env.stop_sim_event)  # Run until the stop_sim_event is triggered.
@@ -211,10 +212,6 @@ def run(exp_dir, conf_file=None, conf_dic=None, traffic_dic=None):
     else:
         print("A configuration dictionary or file required")
 
-    # -------- timing for how long to run the simulation ----------
-    limittime = conf["phases"]["burnin"] + conf["phases"]["execution"] # time after which we should terminate the target senders from sending
-    simtime = conf["phases"]["burnin"] + conf["phases"]["execution"] + conf["phases"]["cooldown"] # time after which the whole simulator stops
-
     # Logging directory
     log_dir = os.path.join(exp_dir, conf["logging"]["dir"])
     # Setup environment
@@ -223,7 +220,7 @@ def run(exp_dir, conf_file=None, conf_dic=None, traffic_dic=None):
     # Create the network
     type = conf["network"]["topology"]
     loggers = get_loggers(log_dir, conf)
-    net = Network(env, type, conf, loggers)
+    net = Network(env, type, conf, loggers, traffic=traffic_dic)
 
     if type == "p2p":
         run_p2p(env, conf, net, loggers)

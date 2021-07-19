@@ -2,8 +2,9 @@ from classes.Node import Node
 
 
 class Client(Node):
-    def __init__(self, env, conf, net, loggers=None, label=0, id=None, p2p=False):
+    def __init__(self, env, conf, net, loggers=None, label=0, id=None, p2p=False, messages=None):
         self.conf = conf
+        self.message_workload = messages
         super().__init__(env=env, conf=conf, net=net, loggers=loggers, id=id)
 
     def schedule_retransmits(self):
