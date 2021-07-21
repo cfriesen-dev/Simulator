@@ -1,7 +1,6 @@
 import simpy
 import os
 import datetime
-import random
 import numpy as np
 import experiments.Settings
 from classes.Net import *

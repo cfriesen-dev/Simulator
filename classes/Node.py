@@ -36,7 +36,7 @@ class Node(object):
 
         self.rate_sending = 1.0/float(self.conf["clients"]["rate_sending"])
 
-        # This specifies how often we put a real message in the bugger
+        # This specifies how often we put a real message into a buffer
         # Only used when there is no traffic file
         self.rate_generating = float(self.conf["clients"]["sim_add_buffer"])
 
@@ -190,7 +190,7 @@ class Node(object):
         if not self.sender_estimates is None:
             packet.sender_estimates = self.sender_estimates.copy()
 
-        #If it has been dropped in the meantime, we just skip sending it.
+        # If it has been dropped in the meantime, we just skip sending it.
         try:
             self.pool.pop(packet.id)
         except Exception as e:
@@ -255,7 +255,7 @@ class Node(object):
                 msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=recipient, size=message['size'])
                 self.simulate_adding_packets_into_buffer(msg)
                 # !!!! TODO: Do I need to add the probability mass here for sender 1?
-            self.env.finished = True
+        self.env.finished = True
 
     def simulate_message_generation(self, dest):
         ''' This method generates actual 'real' messages that can be used to compute the entropy.
@@ -270,7 +270,8 @@ class Node(object):
             msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=dest)
             self.simulate_adding_packets_into_buffer(msg)
             for num, pkt in enumerate(msg.pkts):
-                pkt.probability_mass[i + num] = 1.0  # only needed for sender1
+                if i + num < len(pkt.probability_mass):
+                    pkt.probability_mass[i + num] = 1.0  # only needed for sender1
             i += len(msg.pkts)
         self.env.finished = True
 
