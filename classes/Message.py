@@ -29,10 +29,11 @@ class Message():
         self.pkts = self.split_into_packets(net, dest)
 
     @classmethod
-    def random(cls, conf, net, sender, dest):
+    def random(cls, conf, net, sender, dest, size=None):
         ''' This class method creates a random message, with random payload. '''
 
-        size = random.randint(conf["message"]["min_msg_size"], conf["message"]["max_msg_size"])
+        if not size:
+            size = random.randint(conf["message"]["min_msg_size"], conf["message"]["max_msg_size"])
         payload = random_string(size)
 
         m = cls(conf=conf, net=net, payload=payload, real_sender=sender, dest=dest)
@@ -56,7 +57,7 @@ class Message():
             fragments = [self.payload]
             num_fragments = 1
         else:
-            num_fragments = int(math.ceil(float(len(self.payload))/pkt_size))
+            num_fragments = int(math.ceil(float(len(self.payload)) / pkt_size))
             fragments = [self.payload[i:i + int(self.conf["packet"]["packet_size"])] for i in range(0, len(self.payload), int(self.conf["packet"]["packet_size"]))]
 
         for i, f in enumerate(fragments):

@@ -147,7 +147,6 @@ def run_client_server(env, conf, net, loggers):
     print("---------" + str(datetime.datetime.now()) + "---------")
     print("> Running the system for %s ticks to prepare it for measurement." % (conf["phases"]["burnin"]))
 
-    # env.process(progress_update(env, 5))
     time_started = env.now
     time_started_unix = datetime.datetime.now()
     # ------ RUNNING THE STARTUP PHASE ----------
@@ -159,7 +158,7 @@ def run_client_server(env, conf, net, loggers):
     for p in net.mixnodes:
         p.mixlogging = True
 
-    env.process(sender_t1.simulate_adding_packets_into_buffer(recipient))
+    env.process(sender_t1.simulate_message_generation(recipient))
     print("> Started sending traffic for measurements")
 
     env.run(until=env.stop_sim_event)  # Run until the stop_sim_event is triggered.

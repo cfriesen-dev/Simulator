@@ -35,7 +35,11 @@ class Node(object):
         self.alive = True
 
         self.rate_sending = 1.0/float(self.conf["clients"]["rate_sending"])
-        self.rate_generating = float(self.conf["clients"]["sim_add_buffer"]) # this specifies how often we put a real message into a buffer
+
+        # This specifies how often we put a real message in the bugger
+        # Only used when there is no traffic file
+        self.rate_generating = float(self.conf["clients"]["sim_add_buffer"])
+
         self.cover_traffic = self.conf["clients"]["cover_traffic"]
         self.cover_traffic_rate = 1.0/float(self.conf["clients"]["cover_traffic_rate"])
 
@@ -240,32 +244,44 @@ class Node(object):
         if self.verbose:
             print("> Logs set on for Client %s." % self.id)
 
-    def simulate_adding_packets_into_buffer(self, dest):
-        #  This function is used in the test mode
-        ''' This method generates the actual 'real' messages for which we compute the entropy.
-            The rate at which we generate this traffic is defined by rate_generating variable in
-            the config file.
-​
-            Keyword arguments:
-            dest - the destination of the message.
-        '''
+    def simulate_modeled_traffic(self):
+        messages = self.net.traffic[self.id]
+
+        for message in messages:
+            yield self.env.timeout(message['time_from_last_msg'])
+
+            for recipient in message['to']:
+                # New Message
+                msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=recipient, size=message['size'])
+                self.simulate_adding_packets_into_buffer(msg)
+                # !!!! TODO: Do I need to add the probability mass here for sender 1?
+            self.env.finished = True
+
+    def simulate_message_generation(self, dest):
+        ''' This method generates actual 'real' messages that can be used to compute the entropy.
+            The rate and amount at which we generate this traffic is defined by rate_generating and num_target_packets
+            in the config file.'''
         i = 0
 
-        # Note: if you want to send messages or larger size than a single packet this function must be updated
         while i < self.conf["misc"]["num_target_packets"]:
-
             yield self.env.timeout(float(self.rate_generating))
 
-            msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=dest)  # New Message
-            current_time = self.env.now
-            msg.time_queued = current_time  # The time when the message was created and placed into the queue
-            for pkt in msg.pkts:
-                pkt.time_queued = current_time
-                pkt.probability_mass[i] = 1.0
-            self.add_to_buffer(msg.pkts)
-            self.env.message_ctr += 1
-            i += 1
+            # New Message
+            msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=dest)
+            self.simulate_adding_packets_into_buffer(msg)
+            for num, pkt in enumerate(msg.pkts):
+                pkt.probability_mass[i + num] = 1.0  # only needed for sender1
+            i += len(msg.pkts)
         self.env.finished = True
+
+    def simulate_adding_packets_into_buffer(self, msg):
+        #  This function is used in the test mode
+        current_time = self.env.now
+        msg.time_queued = current_time  # The time when the message was created and placed into the queue
+        for pkt in msg.pkts:
+            pkt.time_queued = current_time
+        self.add_to_buffer(msg.pkts)
+        self.env.message_ctr += 1
 
     def terminate(self, delay=0.0):
         ''' Function changes user's alive status to False after a particular delay
