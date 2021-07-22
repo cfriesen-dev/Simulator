@@ -252,7 +252,8 @@ class Node(object):
 
             for recipient in message['to']:
                 # New Message
-                msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=recipient, size=message['size'])
+                r_client = self.net.clients_dict[recipient]
+                msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=r_client, size=message['size'])
                 self.simulate_adding_packets_into_buffer(msg)
 
     def simulate_message_generation(self, dest):

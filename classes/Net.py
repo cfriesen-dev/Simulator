@@ -18,6 +18,9 @@ class Network(object):
         else:
             self.clients = [Client(env, conf, self, loggers=loggers, label=0) for i in range(int(conf["clients"]["number"]))]
 
+        # TODO: Restructure later, required for proof of concept
+        self.clients_dict = {element.id: element for element in self.clients}
+
         if type == "p2p":
             self.peers = [Node(env, conf, self, id="Peer%s" % i, loggers=loggers) for i in range(int(conf["clients"]["number"]))]
             self.topology["Type"] = "p2p"
