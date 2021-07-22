@@ -14,7 +14,7 @@ if __name__ == "__main__":
     with open('test_config.json') as config_file:
         config = json.load(config_file)
 
-    with open('test_traffic_workload.json') as traffic_file:
+    with open('traffic_workload.json') as traffic_file:
         traffic = json.load(traffic_file)
 
     if not os.path.exists('./workload_experiment/logs'):

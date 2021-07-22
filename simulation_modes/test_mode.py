@@ -134,6 +134,8 @@ def run_client_server(env, conf, net, loggers):
         c.verbose = True
         env.process(c.start())
         env.process(c.start_loop_cover_traffc())
+        if net.traffic:
+            env.process(c.simulate_modeled_traffic())
 
     env.process(sender_t1.start())
     env.process(sender_t1.start_loop_cover_traffc())

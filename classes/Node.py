@@ -254,8 +254,6 @@ class Node(object):
                 # New Message
                 msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=recipient, size=message['size'])
                 self.simulate_adding_packets_into_buffer(msg)
-                # !!!! TODO: Do I need to add the probability mass here for sender 1?
-        self.env.finished = True
 
     def simulate_message_generation(self, dest):
         ''' This method generates actual 'real' messages that can be used to compute the entropy.

@@ -11,6 +11,7 @@ class Network(object):
         self.topology = {}
         self.type = type
         self.loggers = loggers
+        self.traffic = traffic
 
         if traffic:
             self.clients = [Client(env, conf, self, loggers=loggers, label=0, id=i, messages=traffic[i]) for i in traffic.keys()]

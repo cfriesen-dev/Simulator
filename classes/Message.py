@@ -34,7 +34,7 @@ class Message():
 
         if not size:
             size = random.randint(conf["message"]["min_msg_size"], conf["message"]["max_msg_size"])
-        payload = random_string(size)
+        payload = random_string(int(size))
 
         m = cls(conf=conf, net=net, payload=payload, real_sender=sender, dest=dest)
         return m

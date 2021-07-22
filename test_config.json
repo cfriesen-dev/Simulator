@@ -29,17 +29,17 @@
         }
       },
     "packet": {
-        "packet_size": 2},
+        "packet_size": 512},
     "message": {
         "min_msg_size": 2,
-        "max_msg_size": 4},
+        "max_msg_size": 10000},
     "mixnodes": {
       "avg_delay": 0.1,
       "batch": false,
       "batch_size" : 1000,
       "AQM":false},
     "clients": {
-        "number":100,
+        "number":1000,
         "sim_add_buffer": 1.0,
         "rate_sending": 1.0,
         "rate_ack": 0.5,
