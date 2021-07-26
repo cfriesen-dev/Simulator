@@ -4,7 +4,7 @@ from classes.Packet import Packet
 import math
 
 
-class Message():
+class Message:
     ''' This class defines an object of a Message, which is a message send between
     the sender and recipient. '''
 
@@ -19,6 +19,8 @@ class Message():
 
         self.time_queued = None  # The first packet to be added in the queue (sender updates this)
         self.time_sent = None  # The first packet to leave the client (sender updates this)
+        self.time_sent_final = None # The last packet to leave the client (sender updates this)
+        self.time_delivered_initial = None # The first packet to arrive (The recipient of msg will fill this in)
         self.time_delivered = None  # The last packet to arrive (The recipient of msg will fill this in)
         self.transit_time = None
         self.reconstruct = set()  # The IDs we need to reconstruct.
@@ -93,6 +95,9 @@ class Message():
             Keyword arguments:
             pkt - the received packet.
         '''
+        if self.time_delivered_initial is None:
+            self.time_delivered_initial = pkt.time_delivered
+
         if self.time_delivered is None or pkt.time_delivered > self.time_delivered:
             self.time_delivered = pkt.time_delivered
 
@@ -120,7 +125,9 @@ class Message():
         print("Fragments missing       : " + str(len(self.reconstruct)))
         print("Time queued             : " + str(self.time_queued))
         print("Time sent               : " + str(self.time_sent))
+        print("Time spent sending      : " + str(self.time_sent_final - self.time_sent))
         print("Time delivered          : " + str(self.time_delivered))
+        print("Time for full delivery  : " + str(self.time_delivered - self.time_delivered_initial))
         print("Transit duration        : " + str(self.transit_time))
 
         # Reconstruct Payload

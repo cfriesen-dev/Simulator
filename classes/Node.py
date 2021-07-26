@@ -91,8 +91,11 @@ class Node(object):
         packet.current_node = -1  # If it's a retransmission this needs to be reset
         packet.times_transmitted += 1
 
-        if packet.type == "REAL" and packet.message.time_sent is None:
-            packet.message.time_sent = packet.time_sent
+        if packet.type == "REAL":
+            if packet.message.time_sent is None:
+                packet.message.time_sent = packet.time_sent
+            if packet.message.time_sent_final is None or packet.message.time_sent_final < packet.time_sent:
+                packet.message.time_sent_final = packet.time_sent
 
         self.env.process(self.net.forward_packet(packet))
 
@@ -144,7 +147,7 @@ class Node(object):
                     pass
 
     def process_received_packet(self, packet):
-        ''' 1. Processes the received packets and logs informatiomn about them.
+        ''' 1. Processes the received packets and logs information about them.
             2. If enabled, it sends an ACK packet to the sender.
             3. Checks whether all the packets of particular message were received and logs the information about the reconstructed message.
             Keyword arguments:
@@ -172,9 +175,12 @@ class Node(object):
                 self.env.message_ctr -= 1
 
                 # this part is used to stop the simulator at a time when all sent packets got delivered!
-                if self.env.finished and self.env.message_ctr <= 0:
-                  print('> The stop simulation condition happened.')
-                  self.env.stop_sim_event.succeed()
+                if self.env.finished:
+                    if self.env.message_ctr <= 0 and not self.env.stop_sim_event.triggered:
+                        print('> The stop simulation condition happened.')
+                        self.env.stop_sim_event.succeed()
+                    # If sender 1 has finished transmitting, turn off clients from generating more messages
+                    self.terminate(random.randint(10, self.conf["phases"]["cooldown"] / 2))
 
         elif packet.type == "DUMMY":
             pass
@@ -248,13 +254,16 @@ class Node(object):
         messages = self.net.traffic[self.id]
 
         for message in messages:
-            yield self.env.timeout(message['time_from_last_msg'])
+            if self.alive:
+                yield self.env.timeout(message['time_from_last_msg'])
 
-            for recipient in message['to']:
-                # New Message
-                r_client = self.net.clients_dict[recipient]
-                msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=r_client, size=message['size'])
-                self.simulate_adding_packets_into_buffer(msg)
+                for recipient in message['to']:
+                    # New Message
+                    r_client = self.net.clients_dict[recipient]
+                    msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=r_client, size=message['size'])
+                    self.simulate_adding_packets_into_buffer(msg)
+            else:
+                break
 
     def simulate_message_generation(self, dest):
         ''' This method generates actual 'real' messages that can be used to compute the entropy.
@@ -286,7 +295,7 @@ class Node(object):
     def terminate(self, delay=0.0):
         ''' Function changes user's alive status to False after a particular delay
             Keyword argument:
-            delayd (float) - time after the alice status should be switched to False.
+            delay (float) - time after the alice status should be switched to False.
         '''
         yield self.env.timeout(delay)
         self.alive = False
