@@ -16,10 +16,10 @@ def get_loggers(log_dir, conf):
     packet_logger.info(StructuredMessage(metadata=("Type", "CurrentTime", "ClientID", "PacketID", "PacketType", "MessageID", "PacketTimeQueued", "PacketTimeSent", "PacketTimeDelivered", "TotalFragments", "PrOthers", "PrSenderA", "PrSenderB", "RealSenderLabel", "Route", "PoolSizes")))
 
     message_logger = setup_logger('simulation.messages', os.path.join(log_dir, 'message_log.csv'))
-    message_logger.info(StructuredMessage(metadata=("Type", "CurrentTime", "ClientID", "MessageID", "NumPackets", "MsgTimeQueued", "MsgTimeSent", "MsgTimeDelivered", "MsgTransitTime", "MsgSize", "MsgRealSender")))
+    message_logger.info(StructuredMessage(metadata=("Type", "CurrentTime", "ClientID", "MessageID", "NumPackets", "MsgTimeQueued", "MsgTimeSent", "TimeSpentSending", "MsgTimeDelivered", "TimeSpentDelivering", "MsgTransitTime", "MsgSize", "MsgRealSender")))
 
     entropy_logger = setup_logger('simulation.mix', os.path.join(log_dir, 'last_mix_entropy.csv'))
-    entropy_logger.info(StructuredMessage(metadata=tuple(['Entropy'+str(x) for x in range(int(conf["misc"]["num_target_packets"]))])))
+    entropy_logger.info(StructuredMessage(metadata=tuple(['Entropy' + str(x) for x in range(int(conf["misc"]["num_target_packets"]))])))
 
     return (packet_logger, message_logger, entropy_logger)
 

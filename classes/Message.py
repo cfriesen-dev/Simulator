@@ -8,7 +8,7 @@ class Message:
     ''' This class defines an object of a Message, which is a message send between
     the sender and recipient. '''
 
-    __slots__ = ['conf', 'id', 'payload', 'real_sender', 'time_queued', 'time_sent', 'time_delivered', 'transit_time', 'reconstruct', 'complete_receiving', 'pkts']
+    __slots__ = ['conf', 'id', 'payload', 'real_sender', 'time_queued', 'time_sent', 'time_sent_final', 'time_delivered_initial', 'time_delivered', 'transit_time', 'reconstruct', 'complete_receiving', 'pkts']
     def __init__(self, conf, net, payload, dest, real_sender, id=None):
 
         self.conf = conf
@@ -125,9 +125,9 @@ class Message:
         print("Fragments missing       : " + str(len(self.reconstruct)))
         print("Time queued             : " + str(self.time_queued))
         print("Time sent               : " + str(self.time_sent))
-        print("Time spent sending      : " + str(self.time_sent_final - self.time_sent))
+        print("Time spent sending      : " + str(self.time_sent_final - self.time_queued))
         print("Time delivered          : " + str(self.time_delivered))
-        print("Time for full delivery  : " + str(self.time_delivered - self.time_delivered_initial))
+        print("Time spent delivering   : " + str(self.time_delivered - self.time_delivered_initial))
         print("Transit duration        : " + str(self.transit_time))
 
         # Reconstruct Payload

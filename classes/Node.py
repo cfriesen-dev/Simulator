@@ -171,7 +171,9 @@ class Node(object):
             if msg.complete_receiving:
                 msg_transit_time = (msg.time_delivered - msg.time_sent)
                 if self.conf["logging"]["enabled"] and self.message_logger is not None and self.start_logs:
-                    self.message_logger.info(StructuredMessage(metadata=("RCV_MSG", self.env.now, self.id, msg.id, len(msg.pkts), msg.time_queued, msg.time_sent, msg.time_delivered, msg_transit_time, len(msg.payload), msg.real_sender.label)))
+                    time_spent_sending = msg.time_sent_final - msg.time_queued
+                    time_spent_delivering = msg.time_delivered - msg.time_delivered_initial
+                    self.message_logger.info(StructuredMessage(metadata=("RCV_MSG", self.env.now, self.id, msg.id, len(msg.pkts), msg.time_queued, msg.time_sent, time_spent_sending, msg.time_delivered, time_spent_delivering, msg_transit_time, len(msg.payload), msg.real_sender.label)))
                 self.env.message_ctr -= 1
 
                 # this part is used to stop the simulator at a time when all sent packets got delivered!
@@ -250,7 +252,7 @@ class Node(object):
         if self.verbose:
             print("> Logs set on for Client %s." % self.id)
 
-    def simulate_modeled_traffic(self):
+    def simulate_modeled_traffic(self, exclude=None):
         messages = self.net.traffic[self.id]
 
         for message in messages:
@@ -258,6 +260,10 @@ class Node(object):
                 yield self.env.timeout(message['time_from_last_msg'])
 
                 for recipient in message['to']:
+                    # Prevent the second sender from sending to the tracked recipient
+                    if recipient == exclude:
+                        continue;
+
                     # New Message
                     r_client = self.net.clients_dict[recipient]
                     msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=r_client, size=message['size'])
