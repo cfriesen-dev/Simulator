@@ -70,7 +70,7 @@ class Node(object):
                     delay = delays.pop()
                     yield self.env.timeout(float(delay))
 
-                    cover_loop_packet = Packet.dummy(conf=self.conf, net = self.net, dest=self, sender=self)
+                    cover_loop_packet = Packet.dummy(conf=self.conf, net=self.net, dest=self, sender=self)
                     cover_loop_packet.time_queued = self.env.now
                     self.send_packet(cover_loop_packet)
                     self.env.total_messages_sent += 1
@@ -158,9 +158,10 @@ class Node(object):
         self.env.total_messages_received += 1
         # print(self.env.message_ctr)
 
+        msg = packet.message
         if packet.type == "REAL":
             self.num_received_packets += 1
-            msg = packet.message
+            print(f"{self.env.now}: {self.env.message_ctr} message ctr")
 
             if not msg.complete_receiving:
                 msg.register_received_pkt(packet)
@@ -182,10 +183,11 @@ class Node(object):
                         print('> The stop simulation condition happened.')
                         self.env.stop_sim_event.succeed()
                     # If sender 1 has finished transmitting, turn off clients from generating more messages
-                    self.terminate(random.randint(10, self.conf["phases"]["cooldown"] / 2))
+                    self.terminate(random.randint(0, self.conf["phases"]["cooldown"] / 2))
 
         elif packet.type == "DUMMY":
-            pass
+            if self.conf["logging"]["enabled"] and self.packet_logger is not None and self.start_logs:
+                self.packet_logger.info(StructuredMessage(metadata=("RCV_PKT_DUMMY", self.env.now, self.id, packet.id, packet.type, packet.msg_id, packet.time_queued, packet.time_sent, packet.time_delivered, packet.fragments, packet.sender_estimates[0], packet.sender_estimates[1], packet.sender_estimates[2], packet.real_sender.label, packet.route, packet.pool_logs)))
         else:
             raise Exception("Packet type not recognised")
 
@@ -261,8 +263,8 @@ class Node(object):
 
                 for recipient in message['to']:
                     # Prevent the second sender from sending to the tracked recipient
-                    if recipient == exclude:
-                        continue;
+                    if recipient == exclude.id:
+                        continue
 
                     # New Message
                     r_client = self.net.clients_dict[recipient]

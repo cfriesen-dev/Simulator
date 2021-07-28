@@ -124,7 +124,7 @@ def run_client_server(env, conf, net, loggers):
     sender_t2.verbose = True
     print("Target Sender2: ", sender_t2.id)
 
-    recipient = clients.pop()
+    recipient = clients.pop(random.randint(0, len(clients)))
     recipient.verbose = True
     print("Target Recipient: ", recipient.id)
 
@@ -135,7 +135,7 @@ def run_client_server(env, conf, net, loggers):
         env.process(c.start())
         env.process(c.start_loop_cover_traffc())
         if net.traffic:
-            env.process(c.simulate_modeled_traffic())
+            env.process(c.simulate_modeled_traffic(exclude=recipient))
 
     env.process(sender_t1.start())
     env.process(sender_t1.start_loop_cover_traffc())
@@ -144,6 +144,10 @@ def run_client_server(env, conf, net, loggers):
     env.process(recipient.set_start_logs())
     env.process(recipient.start())
     env.process(recipient.start_loop_cover_traffc())
+
+    if net.traffic:
+        env.process(sender_t2.simulate_modeled_traffic(exclude=recipient))
+        env.process(recipient.simulate_modeled_traffic())
 
     print("---------" + str(datetime.datetime.now()) + "---------")
     print("> Running the system for %s ticks to prepare it for measurement." % (conf["phases"]["burnin"]))

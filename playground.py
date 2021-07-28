@@ -19,6 +19,7 @@ if __name__ == "__main__":
 	else:
 		try:
 			os.remove('./playground_experiment/logs/packet_log.csv')
+			os.remove('./playground_experiment/logs/message_log.csv')
 			os.remove('./playground_experiment/logs/last_mix_entropy.csv')
 		except:
 			pass
@@ -40,7 +41,7 @@ if __name__ == "__main__":
 	print("-------------------------------------------------------")
 	print("-------- Anonymity metrics --------")
 	print(">>> Entropy: ", entropy)
-	if unlinkability[0] == None:
+	if unlinkability[0] is None:
 		print(">>> E2E Unlinkability: epsilon= -, delta=%f)" % unlinkability[1])
 	else:
 		print(">>> E2E Unlinkability: (epsilon=%f, delta=%f)" % unlinkability)
@@ -50,6 +51,3 @@ if __name__ == "__main__":
 	print(">> Throughput of the network: %f [packets / second]" % throughput)
 	print("-------------------------------------------------------")
 
-	# except Exception as e:
-		# print(e)
-		# print("Something went wrong! Check whether your input parameters are correct.")
