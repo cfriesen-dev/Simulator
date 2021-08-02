@@ -40,6 +40,7 @@ class Client(Node):
         packet (i.e., cover loop packet).
         '''
 
+        self.env.active_clients += 1
         delays = []
 
         while True:
@@ -54,13 +55,16 @@ class Client(Node):
                     tmp_pkt = self.pkt_buffer_out.pop(0)
                     self.send_packet(tmp_pkt)
                     self.env.total_messages_sent += 1
+                    self.env.real_pkts += 1
 
                 else:
                     tmp_pkt = Packet.dummy(conf=self.conf, net=self.net, dest=self, sender=self)  # sender_estimates[sender.label] = 1.0
                     tmp_pkt.time_queued = self.env.now
                     self.send_packet(tmp_pkt)
                     self.env.total_messages_sent += 1
+                    self.env.dummy_pkts += 1
             else:
+                self.env.active_clients -= 1
                 break
 
     def simulate_modeled_traffic(self, exclude=None):
@@ -94,6 +98,8 @@ class Client(Node):
             # Should be size=self.conf["misc"]["num_target_packets"] but the distribution is shifted into negative values
             # therefore extra is needed for values picked < 0
             delays = [x for x in levy.rvs(*(-60.86760352972247, 230.09494123284878), size=2000) if x > 0]
+            # send the first message off the bat
+            delays.append(0)
 
         while i < self.conf["misc"]["num_target_packets"]:
             if model_traffic:
@@ -119,7 +125,7 @@ class Client(Node):
             pkt.time_queued = current_time
         self.add_to_buffer(msg.pkts)
         self.env.message_ctr += 1
-        self.system_logger.info(StructuredMessage(metadata=(self.env.now, self.env.real_pkts, self.env.dummy_pkts)))
+        self.system_logger.info(StructuredMessage(metadata=(self.env.now, self.env.active_clients, self.env.message_ctr, self.env.real_pkts, self.env.dummy_pkts)))
 
     def add_to_buffer(self, packets):
         for pkt in packets:

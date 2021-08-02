@@ -22,7 +22,7 @@ def get_loggers(log_dir, conf):
     entropy_logger.info(StructuredMessage(metadata=tuple(['Entropy' + str(x) for x in range(int(conf["misc"]["num_target_packets"]))])))
 
     system_logger = setup_logger('simulation.system', os.path.join(log_dir, 'system_log.csv'))
-    system_logger.info(StructuredMessage(metadata=("EnvTime", "NumMessages", "NumRealPackets", "NumDummyPackets")))
+    system_logger.info(StructuredMessage(metadata=("EnvTime", "NumClients", "NumMessages", "NumRealPackets", "NumDummyPackets")))
 
     return (packet_logger, message_logger, entropy_logger, system_logger)
 
@@ -35,6 +35,7 @@ def setup_env(conf):
     env.real_pkts = 0
     env.total_messages_sent = 0
     env.total_messages_received = 0
+    env.active_clients = 0
     env.finished = False
     env.entropy = numpy.zeros(int(conf["misc"]["num_target_packets"]))
 
