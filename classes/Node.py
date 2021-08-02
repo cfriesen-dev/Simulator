@@ -4,6 +4,7 @@ import numpy as np
 from classes.Packet import Packet
 from classes.Message import Message
 import random
+from scipy.stats import levy
 
 
 class Node(object):
@@ -29,7 +30,7 @@ class Node(object):
         self.mixlogging = False
 
         self.loggers = loggers if loggers else None
-        (self.packet_logger, self.message_logger, self.entropy_logger) = self.loggers
+        (self.packet_logger, self.message_logger, self.entropy_logger, self.system_logger) = self.loggers
 
         #State
         self.alive = True
@@ -156,12 +157,12 @@ class Node(object):
 
         packet.time_delivered = self.env.now
         self.env.total_messages_received += 1
-        # print(self.env.message_ctr)
 
         msg = packet.message
         if packet.type == "REAL":
             self.num_received_packets += 1
             print(f"{self.env.now}: {self.env.message_ctr} message ctr")
+            self.system_logger.info(StructuredMessage(metadata=(self.env.now, self.env.real_pkts, self.env.dummy_pkts)))
 
             if not msg.complete_receiving:
                 msg.register_received_pkt(packet)
@@ -174,7 +175,7 @@ class Node(object):
                 if self.conf["logging"]["enabled"] and self.message_logger is not None and self.start_logs:
                     time_spent_sending = msg.time_sent_final - msg.time_queued
                     time_spent_delivering = msg.time_delivered - msg.time_delivered_initial
-                    self.message_logger.info(StructuredMessage(metadata=("RCV_MSG", self.env.now, self.id, msg.id, len(msg.pkts), msg.time_queued, msg.time_sent, time_spent_sending, msg.time_delivered, time_spent_delivering, msg_transit_time, len(msg.payload), msg.real_sender.label)))
+                    self.message_logger.info(StructuredMessage(metadata=("RCV_MSG", self.env.now, self.id, msg.id, len(msg.pkts), msg.time_queued, msg.time_sent, time_spent_sending, msg.time_delivered, time_spent_delivering, msg_transit_time, len(msg.payload), msg.padding, msg.real_sender.label)))
                 self.env.message_ctr -= 1
 
                 # this part is used to stop the simulator at a time when all sent packets got delivered!
@@ -263,7 +264,7 @@ class Node(object):
 
                 for recipient in message['to']:
                     # Prevent the second sender from sending to the tracked recipient
-                    if recipient == exclude.id:
+                    if exclude and recipient == exclude.id:
                         continue
 
                     # New Message
@@ -273,17 +274,27 @@ class Node(object):
             else:
                 break
 
-    def simulate_message_generation(self, dest):
+    def simulate_message_generation(self, dest, model_traffic):
         ''' This method generates actual 'real' messages that can be used to compute the entropy.
             The rate and amount at which we generate this traffic is defined by rate_generating and num_target_packets
             in the config file.'''
         i = 0
 
+        generation_rate = self.rate_generating
+        if model_traffic:
+            # Hardcoded generation distribution based on traffic workload files
+            # Should be size=self.conf["misc"]["num_target_packets"] but the distribution is shifted into negative values
+            # therefore extra is needed for values picked < 0
+            delays = [x for x in levy.rvs(*(-60.86760352972247, 230.09494123284878), size=2000) if x > 0]
+
         while i < self.conf["misc"]["num_target_packets"]:
-            yield self.env.timeout(float(self.rate_generating))
+            if model_traffic:
+                generation_rate = delays.pop()
+
+            yield self.env.timeout(float(generation_rate))
 
             # New Message
-            msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=dest)
+            msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=dest, model_traffic=model_traffic)
             self.simulate_adding_packets_into_buffer(msg)
             for num, pkt in enumerate(msg.pkts):
                 if i + num < len(pkt.probability_mass):

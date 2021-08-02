@@ -16,18 +16,23 @@ def get_loggers(log_dir, conf):
     packet_logger.info(StructuredMessage(metadata=("Type", "CurrentTime", "ClientID", "PacketID", "PacketType", "MessageID", "PacketTimeQueued", "PacketTimeSent", "PacketTimeDelivered", "TotalFragments", "PrOthers", "PrSenderA", "PrSenderB", "RealSenderLabel", "Route", "PoolSizes")))
 
     message_logger = setup_logger('simulation.messages', os.path.join(log_dir, 'message_log.csv'))
-    message_logger.info(StructuredMessage(metadata=("Type", "CurrentTime", "ClientID", "MessageID", "NumPackets", "MsgTimeQueued", "MsgTimeSent", "TimeSpentSending", "MsgTimeDelivered", "TimeSpentDelivering", "MsgTransitTime", "MsgSize", "MsgRealSender")))
+    message_logger.info(StructuredMessage(metadata=("Type", "CurrentTime", "ClientID", "MessageID", "NumPackets", "MsgTimeQueued", "MsgTimeSent", "TimeSpentSending", "MsgTimeDelivered", "TimeSpentDelivering", "MsgTransitTime", "MsgSize", "MsgPadding", "MsgRealSender")))
 
     entropy_logger = setup_logger('simulation.mix', os.path.join(log_dir, 'last_mix_entropy.csv'))
     entropy_logger.info(StructuredMessage(metadata=tuple(['Entropy' + str(x) for x in range(int(conf["misc"]["num_target_packets"]))])))
 
-    return (packet_logger, message_logger, entropy_logger)
+    system_logger = setup_logger('simulation.system', os.path.join(log_dir, 'system_log.csv'))
+    system_logger.info(StructuredMessage(metadata=("EnvTime", "NumMessages", "NumRealPackets", "NumDummyPackets")))
+
+    return (packet_logger, message_logger, entropy_logger, system_logger)
 
 
 def setup_env(conf):
     env = simpy.Environment()
     env.stop_sim_event = env.event()
     env.message_ctr = 0
+    env.dummy_pkts = 0
+    env.real_pkts = 0
     env.total_messages_sent = 0
     env.total_messages_received = 0
     env.finished = False
@@ -129,12 +134,13 @@ def run_client_server(env, conf, net, loggers):
     print("Target Recipient: ", recipient.id)
 
     net.mixnodes[0].verbose = True
+    model_traffic = net.traffic is not None
 
     for c in clients:
         c.verbose = True
         env.process(c.start())
         env.process(c.start_loop_cover_traffc())
-        if net.traffic:
+        if model_traffic:
             env.process(c.simulate_modeled_traffic(exclude=recipient))
 
     env.process(sender_t1.start())
@@ -145,7 +151,7 @@ def run_client_server(env, conf, net, loggers):
     env.process(recipient.start())
     env.process(recipient.start_loop_cover_traffc())
 
-    if net.traffic:
+    if model_traffic:
         env.process(sender_t2.simulate_modeled_traffic(exclude=recipient))
         env.process(recipient.simulate_modeled_traffic())
 
@@ -163,7 +169,7 @@ def run_client_server(env, conf, net, loggers):
     for p in net.mixnodes:
         p.mixlogging = True
 
-    env.process(sender_t1.simulate_message_generation(recipient))
+    env.process(sender_t1.simulate_message_generation(recipient, model_traffic))
     print("> Started sending traffic for measurements")
 
     env.run(until=env.stop_sim_event)  # Run until the stop_sim_event is triggered.

@@ -1,14 +1,21 @@
+from scipy.stats import powerlognorm
+
 from classes.Utilities import random_string
 import random
 from classes.Packet import Packet
 import math
 
 
+def select_size():
+    # Hardcoded message size distribution based on traffic workload files
+    return powerlognorm.rvs(*(1.47225295520988, 1.6241955743417367, 332.05147621193515, 29450.345318375792))
+
+
 class Message:
     ''' This class defines an object of a Message, which is a message send between
     the sender and recipient. '''
 
-    __slots__ = ['conf', 'id', 'payload', 'real_sender', 'time_queued', 'time_sent', 'time_sent_final', 'time_delivered_initial', 'time_delivered', 'transit_time', 'reconstruct', 'complete_receiving', 'pkts']
+    __slots__ = ['conf', 'id', 'payload', 'real_sender', 'padding', 'time_queued', 'time_sent', 'time_sent_final', 'time_delivered_initial', 'time_delivered', 'transit_time', 'reconstruct', 'complete_receiving', 'pkts']
     def __init__(self, conf, net, payload, dest, real_sender, id=None):
 
         self.conf = conf
@@ -17,6 +24,7 @@ class Message:
         self.payload = payload
         self.real_sender = real_sender
 
+        self.padding = 0  # Amount of padding for the message to fill out it's final packet
         self.time_queued = None  # The first packet to be added in the queue (sender updates this)
         self.time_sent = None  # The first packet to leave the client (sender updates this)
         self.time_sent_final = None # The last packet to leave the client (sender updates this)
@@ -31,11 +39,13 @@ class Message:
         self.pkts = self.split_into_packets(net, dest)
 
     @classmethod
-    def random(cls, conf, net, sender, dest, size=None):
+    def random(cls, conf, net, sender, dest, size=None, model_traffic=False):
         ''' This class method creates a random message, with random payload. '''
 
-        if not size:
+        if not size or model_traffic:
             size = random.randint(conf["message"]["min_msg_size"], conf["message"]["max_msg_size"])
+        elif model_traffic:
+            size = select_size()
         payload = random_string(int(size))
 
         m = cls(conf=conf, net=net, payload=payload, real_sender=sender, dest=dest)
@@ -61,6 +71,7 @@ class Message:
         else:
             num_fragments = int(math.ceil(float(len(self.payload)) / pkt_size))
             fragments = [self.payload[i:i + int(self.conf["packet"]["packet_size"])] for i in range(0, len(self.payload), int(self.conf["packet"]["packet_size"]))]
+            self.padding = num_fragments * int(self.conf["packet"]["packet_size"]) - len(self.payload)
 
         for i, f in enumerate(fragments):
             rand_route = net.select_random_route()
@@ -119,6 +130,7 @@ class Message:
         print("=====================")
         print("Message ID              : " + str(self.id))
         print("Real Sender             : " + str(self.pkts[0].real_sender))
+        print("Padding                 : " + str(self.padding))
         print("All fragments collected?: " + str(self.complete_receiving))
         print("Original Fragments      : " + str(len(self.pkts)))
         print("Fragments sent          : " + str(self.pkts[0].fragments))

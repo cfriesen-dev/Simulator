@@ -7,7 +7,6 @@ import numpy
 
 def random_string(size):
     return hexlify(urandom(size)).decode('utf8')
-    # return ''.join(random.choice(chars) for x in range(size))
 
 
 def get_exponential_delay(avg_delay, cache=[]):
@@ -34,7 +33,7 @@ def stream_to_file(filename, stream):
         outfile.write(stream.getvalue())
 
 
-def setup_logger(logger_name, filehandler_name, capacity=50000000):
+def setup_logger(logger_name, filehandler_name, capacity=50000):
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
 
