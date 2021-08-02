@@ -24,6 +24,7 @@ if __name__ == "__main__":
             os.remove('./workload_experiment/logs/packet_log.csv')
             os.remove('./workload_experiment/logs/message_log.csv')
             os.remove('./workload_experiment/logs/last_mix_entropy.csv')
+            os.remove('./workload_experiment/logs/system_log.csv')
         except:
             pass
 
