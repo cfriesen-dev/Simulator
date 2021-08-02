@@ -3,6 +3,7 @@ import numpy as np
 from classes.Packet import Packet
 from classes.Message import Message
 from scipy.stats import levy
+from classes.Utilities import StructuredMessage
 
 
 class Client(Node):
@@ -107,6 +108,7 @@ class Client(Node):
                 if i + num < len(pkt.probability_mass):
                     pkt.probability_mass[i + num] = 1.0  # only needed for sender1
             i += len(msg.pkts)
+            print(f" {i} packets sent for entropy measurement")
         self.env.finished = True
 
     def simulate_adding_packets_into_buffer(self, msg):
@@ -117,6 +119,7 @@ class Client(Node):
             pkt.time_queued = current_time
         self.add_to_buffer(msg.pkts)
         self.env.message_ctr += 1
+        self.system_logger.info(StructuredMessage(metadata=(self.env.now, self.env.real_pkts, self.env.dummy_pkts)))
 
     def add_to_buffer(self, packets):
         for pkt in packets:

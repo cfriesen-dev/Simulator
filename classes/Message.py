@@ -42,10 +42,10 @@ class Message:
     def random(cls, conf, net, sender, dest, size=None, model_traffic=False):
         ''' This class method creates a random message, with random payload. '''
 
-        if not size or model_traffic:
-            size = random.randint(conf["message"]["min_msg_size"], conf["message"]["max_msg_size"])
-        elif model_traffic:
+        if not size and model_traffic:
             size = select_size()
+        elif not size:
+            size = random.randint(conf["message"]["min_msg_size"], conf["message"]["max_msg_size"])
         payload = random_string(int(size))
 
         m = cls(conf=conf, net=net, payload=payload, real_sender=sender, dest=dest)

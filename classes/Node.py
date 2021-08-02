@@ -160,7 +160,6 @@ class Node(object):
         if packet.type == "REAL":
             self.num_received_packets += 1
             print(f"{self.env.now}: {self.env.message_ctr} message ctr")
-            self.system_logger.info(StructuredMessage(metadata=(self.env.now, self.env.real_pkts, self.env.dummy_pkts)))
 
             if not msg.complete_receiving:
                 msg.register_received_pkt(packet)
@@ -175,8 +174,9 @@ class Node(object):
                     time_spent_delivering = msg.time_delivered - msg.time_delivered_initial
                     self.message_logger.info(StructuredMessage(metadata=("RCV_MSG", self.env.now, self.id, msg.id, len(msg.pkts), msg.time_queued, msg.time_sent, time_spent_sending, msg.time_delivered, time_spent_delivering, msg_transit_time, len(msg.payload), msg.padding, msg.real_sender.label)))
                 self.env.message_ctr -= 1
+                self.system_logger.info(StructuredMessage(metadata=(self.env.now, self.env.real_pkts, self.env.dummy_pkts)))
 
-                # this part is used to stop the simulator at a time when all sent packets got delivered!
+            # this part is used to stop the simulator at a time when all sent packets got delivered!
                 if self.env.finished:
                     if self.env.message_ctr <= 0 and not self.env.stop_sim_event.triggered:
                         print('> The stop simulation condition happened.')
