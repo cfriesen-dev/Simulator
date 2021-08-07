@@ -70,11 +70,14 @@ class Client(Node):
 
     def simulate_modeled_traffic(self, exclude=None):
         messages = self.net.traffic[self.id]
-        self.env.active_clients += 1
 
-        for message in messages:
+        for idx, message in enumerate(messages):
             if self.alive:
                 yield self.env.timeout(message['time_from_last_msg'])
+
+                if idx == 0:
+                    self.env.active_clients += 1
+                    self.system_logger.info(StructuredMessage(metadata=(self.env.now, self.env.active_clients, self.env.message_ctr, self.env.real_pkts, self.env.dummy_pkts)))
 
                 for recipient in message['to']:
                     # Prevent the second sender from sending to the tracked recipient
@@ -85,9 +88,11 @@ class Client(Node):
                     r_client = self.net.clients_dict[recipient]
                     msg = Message.random(conf=self.conf, net=self.net, sender=self, dest=r_client, size=message['size'])
                     self.simulate_adding_packets_into_buffer(msg)
+
+                if idx == len(messages) - 1:
+                    self.env.active_clients -= 1
             else:
                 break
-        self.env.active_clients -= 1
 
     def simulate_message_generation(self, dest, model_traffic):
         ''' This method generates actual 'real' messages that can be used to compute the entropy.

@@ -158,7 +158,7 @@ class Node(object):
         msg = packet.message
         if packet.type == "REAL":
             self.num_received_packets += 1
-            print(f"{self.env.now}: {self.env.message_ctr} message ctr")
+            print(f"{self.env.now}: {self.env.message_ctr} message ctr, {self.env.active_clients} active clients, {self.env.real_pkts} real pkts")
 
             if not msg.complete_receiving:
                 msg.register_received_pkt(packet)
