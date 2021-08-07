@@ -31,20 +31,21 @@
     "packet": {
         "packet_size": 512},
     "message": {
-        "min_msg_size": 2,
-        "max_msg_size": 10000},
+        "min_msg_size": 1,
+        "max_msg_size": 1},
     "mixnodes": {
       "avg_delay": 0.1,
       "batch": false,
       "batch_size" : 1000,
       "AQM":false},
     "clients": {
-        "number":1000,
+        "number":100,
         "sim_add_buffer": 1.0,
         "rate_sending": 1.0,
         "rate_ack": 0.5,
         "cover_traffic":false,
-        "cover_traffic_rate":1.0,
+        "cover_traffic_rate":10.0,
+        "user_loop_traffic": true,
         "ACK":false,
         "retransmit":false,
         "dummies_acks":false,

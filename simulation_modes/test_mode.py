@@ -65,7 +65,6 @@ def run_p2p(env, conf, net, loggers):
     env.process(SenderT1.start_loop_cover_traffc())
     env.process(SenderT2.start())
     env.process(SenderT2.start_loop_cover_traffc())
-    env.process(recipient.set_start_logs())
     env.process(recipient.start())
     env.process(recipient.start_loop_cover_traffc())
 
@@ -148,7 +147,6 @@ def run_client_server(env, conf, net, loggers):
     env.process(sender_t1.start_loop_cover_traffc())
     env.process(sender_t2.start())
     env.process(sender_t2.start_loop_cover_traffc())
-    env.process(recipient.set_start_logs())
     env.process(recipient.start())
     env.process(recipient.start_loop_cover_traffc())
 

@@ -10,6 +10,9 @@ class Client(Node):
     def __init__(self, env, conf, net, loggers=None, label=0, id=None, p2p=False, messages=None):
         self.conf = conf
         self.message_workload = messages
+
+        # Is the end user sending loop traffic to cover their activities
+        self.user_loop_traffic = self.conf['clients']['user_loop_traffic']
         super().__init__(env=env, conf=conf, net=net, loggers=loggers, id=id)
 
     def schedule_retransmits(self):
@@ -40,7 +43,6 @@ class Client(Node):
         packet (i.e., cover loop packet).
         '''
 
-        self.env.active_clients += 1
         delays = []
 
         while True:
@@ -57,18 +59,18 @@ class Client(Node):
                     self.env.total_messages_sent += 1
                     self.env.real_pkts += 1
 
-                else:
+                elif self.user_loop_traffic:
                     tmp_pkt = Packet.dummy(conf=self.conf, net=self.net, dest=self, sender=self)  # sender_estimates[sender.label] = 1.0
                     tmp_pkt.time_queued = self.env.now
                     self.send_packet(tmp_pkt)
                     self.env.total_messages_sent += 1
                     self.env.dummy_pkts += 1
             else:
-                self.env.active_clients -= 1
                 break
 
     def simulate_modeled_traffic(self, exclude=None):
         messages = self.net.traffic[self.id]
+        self.env.active_clients += 1
 
         for message in messages:
             if self.alive:
@@ -85,6 +87,7 @@ class Client(Node):
                     self.simulate_adding_packets_into_buffer(msg)
             else:
                 break
+        self.env.active_clients -= 1
 
     def simulate_message_generation(self, dest, model_traffic):
         ''' This method generates actual 'real' messages that can be used to compute the entropy.
@@ -93,6 +96,8 @@ class Client(Node):
         i = 0
 
         generation_rate = self.rate_generating
+        self.env.active_clients += 1
+
         if model_traffic:
             # Hardcoded generation distribution based on traffic workload files
             # Should be size=self.conf["misc"]["num_target_packets"] but the distribution is shifted into negative values
@@ -116,6 +121,7 @@ class Client(Node):
             i += len(msg.pkts)
             print(f" {i} packets sent for entropy measurement")
         self.env.finished = True
+        self.env.active_clients -= 1
 
     def simulate_adding_packets_into_buffer(self, msg):
         #  This function is used in the test mode

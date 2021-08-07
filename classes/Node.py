@@ -50,7 +50,6 @@ class Node(object):
         self.send_ACK = self.conf["clients"]["ACK"]
         self.num_received_packets = 0
         self.msg_buffer_in = {}
-        self.start_logs = False
         self.batch_num = 0
         self.free_to_batch = True
 
@@ -164,12 +163,12 @@ class Node(object):
             if not msg.complete_receiving:
                 msg.register_received_pkt(packet)
                 self.msg_buffer_in[msg.id] = msg
-                if self.conf["logging"]["enabled"] and self.packet_logger is not None and self.start_logs:
+                if self.conf["logging"]["enabled"] and self.packet_logger is not None:
                     self.packet_logger.info(StructuredMessage(metadata=("RCV_PKT_REAL", self.env.now, self.id, packet.id, packet.type, packet.msg_id, packet.time_queued, packet.time_sent, packet.time_delivered, packet.fragments, packet.sender_estimates[0], packet.sender_estimates[1], packet.sender_estimates[2], packet.real_sender.label, packet.route, packet.pool_logs)))
 
             if msg.complete_receiving:
                 msg_transit_time = (msg.time_delivered - msg.time_sent)
-                if self.conf["logging"]["enabled"] and self.message_logger is not None and self.start_logs:
+                if self.conf["logging"]["enabled"] and self.message_logger is not None:
                     time_spent_sending = msg.time_sent_final - msg.time_queued
                     time_spent_delivering = msg.time_delivered - msg.time_delivered_initial
                     self.message_logger.info(StructuredMessage(metadata=("RCV_MSG", self.env.now, self.id, msg.id, len(msg.pkts), msg.time_queued, msg.time_sent, time_spent_sending, msg.time_delivered, time_spent_delivering, msg_transit_time, len(msg.payload), msg.padding, msg.real_sender.label)))
@@ -185,7 +184,7 @@ class Node(object):
                     self.terminate(random.randint(0, self.conf["phases"]["cooldown"] / 2))
 
         elif packet.type == "DUMMY":
-            if self.conf["logging"]["enabled"] and self.packet_logger is not None and self.start_logs:
+            if self.conf["logging"]["enabled"] and self.packet_logger is not None:
                 self.packet_logger.info(StructuredMessage(metadata=("RCV_PKT_DUMMY", self.env.now, self.id, packet.id, packet.type, packet.msg_id, packet.time_queued, packet.time_sent, packet.time_delivered, packet.fragments, packet.sender_estimates[0], packet.sender_estimates[1], packet.sender_estimates[2], packet.real_sender.label, packet.route, packet.pool_logs)))
         else:
             raise Exception("Packet type not recognised")
@@ -246,12 +245,6 @@ class Node(object):
 
             self.probability_mass = dist_pm.copy()
             self.sender_estimates = dist_se.copy()
-
-    def set_start_logs(self, time=0.0):
-        yield self.env.timeout(time)
-        self.start_logs = True
-        if self.verbose:
-            print("> Logs set on for Client %s." % self.id)
 
     def terminate(self, delay=0.0):
         ''' Function changes user's alive status to False after a particular delay
