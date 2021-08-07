@@ -158,6 +158,7 @@ class Node(object):
         msg = packet.message
         if packet.type == "REAL":
             self.num_received_packets += 1
+            self.env.real_pkts -= 1
             print(f"{self.env.now}: {self.env.message_ctr} message ctr, {self.env.active_clients} active clients, {self.env.real_pkts} real pkts")
 
             if not msg.complete_receiving:
@@ -184,7 +185,8 @@ class Node(object):
                     self.terminate(random.randint(0, self.conf["phases"]["cooldown"] / 2))
 
         elif packet.type == "DUMMY":
-            if self.conf["logging"]["enabled"] and self.packet_logger is not None:
+            self.env.dummy_pkts -= 1
+        if self.conf["logging"]["enabled"] and self.packet_logger is not None:
                 self.packet_logger.info(StructuredMessage(metadata=("RCV_PKT_DUMMY", self.env.now, self.id, packet.id, packet.type, packet.msg_id, packet.time_queued, packet.time_sent, packet.time_delivered, packet.fragments, packet.sender_estimates[0], packet.sender_estimates[1], packet.sender_estimates[2], packet.real_sender.label, packet.route, packet.pool_logs)))
         else:
             raise Exception("Packet type not recognised")
