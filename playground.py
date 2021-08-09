@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
 	unlinkability = anonymity_metrics.get_unlinkability(packetLogs)
 	entropy = anonymity_metrics.get_entropy(entropyLogs, config["misc"]["num_target_packets"])
-	latency = anonymity_metrics.compute_e2e_latency(packetLogs)
+	latency = anonymity_metrics.compute_e2e_latency(packetLogs, "mean")
 
 	print("\n\n")
 	print("Simulation finished. Below, you can check your results.")

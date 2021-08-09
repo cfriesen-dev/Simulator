@@ -186,8 +186,8 @@ class Node(object):
 
         elif packet.type == "DUMMY":
             self.env.dummy_pkts -= 1
-        if self.conf["logging"]["enabled"] and self.packet_logger is not None:
-                self.packet_logger.info(StructuredMessage(metadata=("RCV_PKT_DUMMY", self.env.now, self.id, packet.id, packet.type, packet.msg_id, packet.time_queued, packet.time_sent, packet.time_delivered, packet.fragments, packet.sender_estimates[0], packet.sender_estimates[1], packet.sender_estimates[2], packet.real_sender.label, packet.route, packet.pool_logs)))
+        # if self.conf["logging"]["enabled"] and self.packet_logger is not None:
+        #         self.packet_logger.info(StructuredMessage(metadata=("RCV_PKT_DUMMY", self.env.now, self.id, packet.id, packet.type, packet.msg_id, packet.time_queued, packet.time_sent, packet.time_delivered, packet.fragments, packet.sender_estimates[0], packet.sender_estimates[1], packet.sender_estimates[2], packet.real_sender.label, packet.route, packet.pool_logs)))
         else:
             raise Exception("Packet type not recognised")
 

@@ -38,7 +38,10 @@ if __name__ == "__main__":
 
     unlinkability = anonymity_metrics.get_unlinkability(packetLogs)
     entropy = anonymity_metrics.get_entropy(entropyLogs, config["misc"]["num_target_packets"])
-    latency = anonymity_metrics.compute_e2e_latency(packetLogs)
+    overall_latency = anonymity_metrics.compute_e2e_latency(packetLogs, "mean")
+    min_latency = anonymity_metrics.compute_e2e_latency(packetLogs, "min")
+    max_latency = anonymity_metrics.compute_e2e_latency(packetLogs, "max")
+
 
     print("\n\n")
     print("Simulation finished. Below, you can check your results.")
@@ -51,7 +54,8 @@ if __name__ == "__main__":
         print(">>> E2E Unlinkability: (epsilon=%f, delta=%f)" % unlinkability)
     print("\n\n")
     print("-------- Performance metrics --------")
-    print(">> Overall latency: %f seconds (including mixing delay and packet cryptographic processing)" % (latency))
+    print(">> Overall latency: %f seconds (including mixing delay and packet cryptographic processing)" % (overall_latency))
+    print(">> Min latency: %f seconds (including mixing delay and packet cryptographic processing)" % (min_latency))
+    print(">> Max latency: %f seconds (including mixing delay and packet cryptographic processing)" % (max_latency))
     print(">> Throughput of the network: %f [packets / second]" % throughput)
     print("-------------------------------------------------------")
-

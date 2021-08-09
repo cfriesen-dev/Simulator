@@ -50,10 +50,15 @@ def get_unlinkability(data):
 	return (meanEps, delta)
 
 
-def compute_e2e_latency(df):
+def compute_e2e_latency(df, metric):
 	travel_time = []
 	for i, r in df.iterrows():
 		time_sent = r['PacketTimeSent']
 		time_delivered = r['PacketTimeDelivered']
 		travel_time.append(time_delivered - time_sent)
-	return np.mean(travel_time)
+	if metric == "mean":
+		return np.mean(travel_time)
+	elif metric == "max":
+		return np.max(travel_time)
+	elif metric == "min":
+		return np.min(travel_time)
