@@ -62,16 +62,20 @@ class Message:
 
         pkts = []
 
-        pkt_size = float(self.conf["packet"]["packet_size"])
+        if self.conf["packet"]["add_crypto_overhead"]:
+            # Header of a Sphinx packet with a maximum path of 5 mixes can be encoded in 224 bytes.
+            pkt_size = float(self.conf["packet"]["packet_size"] - 224)
+        else:
+            pkt_size = float(self.conf["packet"]["packet_size"])
 
         # to be able to have atomic messages, we keep this if condition
-        if pkt_size == 0:
+        if pkt_size <= 0:
             fragments = [self.payload]
             num_fragments = 1
         else:
             num_fragments = int(math.ceil(float(len(self.payload)) / pkt_size))
-            fragments = [self.payload[i:i + int(self.conf["packet"]["packet_size"])] for i in range(0, len(self.payload), int(self.conf["packet"]["packet_size"]))]
-            self.padding = num_fragments * int(self.conf["packet"]["packet_size"]) - len(self.payload)
+            fragments = [self.payload[i:i + int(pkt_size)] for i in range(0, len(self.payload), int(pkt_size))]
+            self.padding = num_fragments * int(pkt_size) - len(self.payload)
 
         for i, f in enumerate(fragments):
             rand_route = net.select_random_route()
